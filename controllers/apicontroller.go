@@ -25,3 +25,10 @@ func (e *Controller) NodeInfo() {
 	e.ResponseInfo(200, nil, result)
 }
 
+func (e *Controller) HpNodeInfo() {
+	filter := make(map[string]string)
+	filter["nodetype"] = "hpnode"
+	var result = async.GetAllNodeStatus(filter)
+	e.ResponseInfo(200, nil, result)
+}
+
