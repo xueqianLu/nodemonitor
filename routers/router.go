@@ -6,7 +6,7 @@ import (
 )
 
 func init() {
-	ns := beego.NewNamespace("/monitor",
+	ns := beego.NewNamespace("/nodemonitor",
 		beego.NSNamespace("api",
 			//用户信息
 			beego.NSRouter("/nodeinfo", &controllers.Controller{}, "*:NodeInfo"),

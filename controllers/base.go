@@ -8,9 +8,9 @@ type BaseController struct {
 func (d *BaseController) ResponseInfo(code int, errMsg interface{}, result interface{}) {
 	switch code {
 	case 500:
-		d.Data["json"] = map[string]interface{}{"error": "500", "err_msg": errMsg, "data": result}
+		d.Data["json"] = map[string]interface{}{"code":code, "cnMsg": errMsg, "enMsg": errMsg, "data": result}
 	case 200:
-		d.Data["json"] = map[string]interface{}{"error": "200", "err_msg": errMsg, "data": result}
+		d.Data["json"] = map[string]interface{}{"code":code, "cnMsg": "处理成功", "enMsg": "Success", "data": result}
 	}
 	d.ServeJSON()
 }
