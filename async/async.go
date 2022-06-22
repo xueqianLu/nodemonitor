@@ -14,7 +14,7 @@ func init() {
 func syncNodeInfo() {
 	getNodeInfoAndParse()
 
-	timer := time.NewTicker(time.Minute * 30)
+	timer := time.NewTicker(time.Minute * 5)
 	defer timer.Stop()
 	for {
 		select {
@@ -31,7 +31,7 @@ func syncPeerInfo() {
 		getPeerInfo(node)
 	}
 
-	timer := time.NewTicker(time.Minute * 10)
+	timer := time.NewTicker(time.Minute * 2)
 	defer timer.Stop()
 	for {
 		select {
@@ -46,7 +46,7 @@ func syncPeerInfo() {
 
 func syncConsensusNode() {
 	getHpNodes()
-	timer := time.NewTicker(time.Minute * 30)
+	timer := time.NewTicker(time.Minute * 5)
 	defer timer.Stop()
 	for {
 		select {
