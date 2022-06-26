@@ -15,7 +15,7 @@ var (
 )
 
 type LockedNodeInfo struct {
-	Name string `json:"name"`
+	Name string `json:"name_eng"`
 	Coinbase string `json:"coinbase"`
 	VoteNumber int64 `json:"voteNumber"`
 }
