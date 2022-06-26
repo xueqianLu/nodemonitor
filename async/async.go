@@ -97,7 +97,7 @@ func filterall(allinfo map[string]*NodeStatus, filterfunc []FilterFunc ) map[str
 }
 
 
-func GetAllNodeStatus(filter map[string]string) map[string]*NodeStatus {
+func GetAllNodeStatus(filter map[string]string) []*NodeStatus {
 	filterfuncs := getFilterFuncs(filter)
 
 	var allinfo = make(map[string]*NodeStatus)
@@ -123,6 +123,11 @@ func GetAllNodeStatus(filter map[string]string) map[string]*NodeStatus {
 		allinfo[node.Coinbase] = status
 	}
 	filtered := filterall(allinfo, filterfuncs)
-	return filtered
+	var res = make([]*NodeStatus, 0, len(filtered))
+	for _,v := range filtered {
+		res = append(res, v)
+	}
+
+	return res
 
 }
