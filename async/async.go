@@ -1,6 +1,7 @@
 package async
 
 import (
+	"sort"
 	"strings"
 	"time"
 )
@@ -27,7 +28,7 @@ func syncNodeInfo() {
 func syncPeerInfo() {
 	bootnodes := []string{"47.75.213.166", "47.94.20.30", "47.254.133.46", "47.88.60.227", "47.75.213.166"}
 
-	for _,node := range bootnodes {
+	for _, node := range bootnodes {
 		getPeerInfo(node)
 	}
 
@@ -36,13 +37,12 @@ func syncPeerInfo() {
 	for {
 		select {
 		case <-timer.C:
-			for _,node := range bootnodes {
+			for _, node := range bootnodes {
 				go getPeerInfo(node)
 			}
 		}
 	}
 }
-
 
 func syncConsensusNode() {
 	getHpNodes()
@@ -57,19 +57,18 @@ func syncConsensusNode() {
 }
 
 type NodeStatus struct {
-	PeerId string `json:"peerid"`
-	NodeName string `json:"name"`
-	Coinbase string `json:"coinbase"`
-	NodeType string `json:"nodetype"`
-	Status string `json:"status"`
+	PeerId      string `json:"peerid"`
+	NodeName    string `json:"name"`
+	Coinbase    string `json:"coinbase"`
+	NodeType    string `json:"nodetype"`
+	Status      string `json:"status"`
 	GhpbVersion string `json:"ghpbversion"`
-	BoeVersion string `json:"boeversion"`
-	Mining string `json:"mining"`
-	VoteNumber int64 `json:"vote"`
-
+	BoeVersion  string `json:"boeversion"`
+	Mining      string `json:"mining"`
+	VoteNumber  int64  `json:"vote"`
 }
 
-func parseVersion(peerversion string) (string,string) {
+func parseVersion(peerversion string) (string, string) {
 	sep := "&"
 	versions := strings.Split(peerversion, sep)
 	if len(versions) >= 2 {
@@ -80,7 +79,7 @@ func parseVersion(peerversion string) (string,string) {
 	return "", ""
 }
 
-func filterall(allinfo map[string]*NodeStatus, filterfunc []FilterFunc ) map[string]*NodeStatus {
+func filterall(allinfo map[string]*NodeStatus, filterfunc []FilterFunc) map[string]*NodeStatus {
 	var filtered = make(map[string]*NodeStatus)
 	for k, info := range allinfo {
 		passed := true
@@ -96,16 +95,32 @@ func filterall(allinfo map[string]*NodeStatus, filterfunc []FilterFunc ) map[str
 	return filtered
 }
 
+type sortNodeStatus []*NodeStatus
 
-func GetAllNodeStatus(filter map[string]string) []*NodeStatus {
+func (v sortNodeStatus) Len() int      { return len(v) }
+func (v sortNodeStatus) Swap(i, j int) { v[i], v[j] = v[j], v[i] }
+func (v sortNodeStatus) Less(i, j int) bool {
+	return v[i].VoteNumber > v[j].VoteNumber
+}
+
+type NodeInfos struct {
+	HpNumber    int           `json:"hpcount"`
+	HpOfflines  int           `json:"hpoffline"`
+	HpNotMining int           `json:"hpnotmining"`
+	Infos       []*NodeStatus `json:"nodeinfos"`
+}
+
+func GetAllNodeStatus(filter map[string]string) interface{} {
+	var result = new(NodeInfos)
+
 	filterfuncs := getFilterFuncs(filter)
 
 	var allinfo = make(map[string]*NodeStatus)
 	nodelist := getBoeNodeList()
 	for _, node := range nodelist {
 		status := &NodeStatus{
-			NodeName: node.Name,
-			Coinbase: node.Coinbase,
+			NodeName:   node.Name,
+			Coinbase:   node.Coinbase,
 			VoteNumber: node.VoteNumber,
 		}
 		status.NodeType = getTypeByCoinbase(node.Coinbase)
@@ -122,12 +137,26 @@ func GetAllNodeStatus(filter map[string]string) []*NodeStatus {
 		}
 		allinfo[node.Coinbase] = status
 	}
+	for _, node := range allinfo {
+		if node.NodeType == "hpnode" {
+			result.HpNumber += 1
+			if node.Status == "offline" {
+				result.HpOfflines += 1
+			} else if node.Mining == "false" {
+				result.HpNotMining += 1
+			}
+		}
+	}
+	//log.Println("result is ", result)
 	filtered := filterall(allinfo, filterfuncs)
 	var res = make([]*NodeStatus, 0, len(filtered))
-	for _,v := range filtered {
+	for _, v := range filtered {
 		res = append(res, v)
 	}
+	sort.Sort(sortNodeStatus(res))
 
-	return res
+	result.Infos = res
+
+	return result
 
 }
