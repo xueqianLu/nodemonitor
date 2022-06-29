@@ -13,14 +13,12 @@ import (
 
 var (
 	peerInfos = sync.Map{} // map[peer.id]peerinfo
-	peerMux = sync.RWMutex{}
+	peerMux   = sync.RWMutex{}
 )
 
 func addPeerInfoToMap(info *PeerInfo) {
 	peerInfos.Store(info.PeerId, info)
 }
-
-
 
 /*
 {
@@ -42,23 +40,23 @@ func addPeerInfoToMap(info *PeerInfo) {
         "handshakeHD": "0x9c3704fab3915e36ef6f1e6353167c93ccf2486a4a2854dcaaa944066cf39966"
       }
     }
- */
+*/
 type PeerInfo struct {
-	PeerId string	`json:"id"`
-	Name string		`json:"name"`
-	Version string	`json:"version"`
-	Coinbase string `json:"coinbase"`
-	NodeType string `json:"remote"`
+	PeerId    string `json:"id"`
+	Name      string `json:"name"`
+	Version   string `json:"version"`
+	Coinbase  string `json:"coinbase"`
+	NodeType  string `json:"remote"`
 	StartTime string `json:"start"`
-	Mining string   `json:"mining"`
+	Mining    string `json:"mining"`
 }
 
 type RequestPeerInfo struct {
-	Data []*PeerInfo `json:"data"`
-	ErrMsg string	`json:"err_msg"`
+	Data   []*PeerInfo `json:"data"`
+	ErrMsg string      `json:"err_msg"`
 }
 
-func getPeerInfo(bootnode string) (*RequestPeerInfo,error){
+func getPeerInfo(bootnode string) (*RequestPeerInfo, error) {
 	url := fmt.Sprintf("http://%s:9000/nodeproxy/api/peerinfo", bootnode)
 	var info = &RequestPeerInfo{}
 	resp, err := http.Get(url)
@@ -83,6 +81,9 @@ func getPeerInfo(bootnode string) (*RequestPeerInfo,error){
 	peerInfos = sync.Map{}
 	for _, d := range info.Data {
 		logs.Debug("get node peer", "info", d)
+		if d.Mining == "" {
+			d.Mining = "false"
+		}
 		peerInfos.Store(d.PeerId, d)
 	}
 	return info, nil
@@ -91,8 +92,8 @@ func getPeerInfo(bootnode string) (*RequestPeerInfo,error){
 func getPeerInfoByCoinbase(coinbase string) []*PeerInfo {
 	peerMux.RLock()
 	defer peerMux.RUnlock()
-	var info = make([]*PeerInfo,0)
-	peerInfos.Range(func(k,v interface{}) bool {
+	var info = make([]*PeerInfo, 0)
+	peerInfos.Range(func(k, v interface{}) bool {
 		logs.Debug("find peer info by coinbase", "coinbase", coinbase, "key", k.(string))
 		vinfo := v.(*PeerInfo)
 		if strings.ToLower(coinbase) == strings.ToLower(vinfo.Coinbase) {
