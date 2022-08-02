@@ -39,11 +39,11 @@ func addNodeLose(blocknumber int64, node common.Address) {
 	round, exist := roundinfos.Load(roundNumber)
 	if !exist {
 		infos := NewSafeMap()
-		infos.AddLose(node)
+		infos.AddLose(node, int(blocknumber))
 		roundinfos.Store(roundNumber, infos)
 	} else {
 		infos := round.(*SafeMap)
-		infos.AddLose(node)
+		infos.AddLose(node, int(blocknumber))
 	}
 }
 
@@ -123,13 +123,15 @@ func getRoundInfo(blocknumber int64, round int64) RoundsInfos {
 			RoundNumber: roundNumber,
 			RoundInfo:   make(RoundInfo, 0),
 		}
-		infos.(*SafeMap).Range(func(addr common.Address, lose int) {
+		infos.(*SafeMap).Range(func(addr common.Address, lose int, blocks []int) {
 			name := nodename[addr]
 			nodeinfo := NodeInfo{
 				Address:   addr,
 				Name:      name,
 				LoseBlock: lose,
+				LostBlock: make([]int, len(blocks)),
 			}
+			copy(nodeinfo.LostBlock, blocks)
 			roundinfo.RoundInfo = append(roundinfo.RoundInfo, nodeinfo)
 		})
 		sort.Sort(roundinfo.RoundInfo)

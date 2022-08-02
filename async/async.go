@@ -166,6 +166,7 @@ type NodeInfo struct {
 	Address   common.Address `json:"nodeaddress"`
 	Name      string         `json:"nodename"`
 	LoseBlock int            `json:"loseblock"`
+	LostBlock []int          `json:"lostblocks"`
 }
 type RoundInfo []NodeInfo
 
