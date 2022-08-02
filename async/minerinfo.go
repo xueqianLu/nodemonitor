@@ -70,9 +70,11 @@ func getMinerInfo() {
 			beego.Error("get header by number failed", "err", err)
 			return
 		}
-		beego.Info("get elected", "miner is ", elected.(json.RawMessage), "block is ", startnumber)
-		electedaddr := common.HexToAddress(string(elected.(json.RawMessage)))
-		if new(big.Int).SetBytes(electedaddr.Bytes()).Int64() == 0 {
+		var hexaddr string
+		json.Unmarshal(elected.(json.RawMessage), &hexaddr)
+		beego.Info("get elected", "miner is ", hexaddr, "block is ", startnumber)
+		electedaddr := common.HexToAddress(hexaddr)
+		if bytes.Compare(electedaddr.Bytes(), common.Address{}.Bytes()) == 0 {
 			beego.Error("not get elected addr, wait next time")
 			return
 		}
