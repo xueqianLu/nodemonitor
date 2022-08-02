@@ -114,7 +114,7 @@ func getRoundInfo(blocknumber int64, round int64) RoundsInfos {
 
 	roundNumber := int64(math.Floor(float64(blocknumber/200))) * 200
 	for i := int64(0); i < round; i++ {
-		roundNumber += 200 * i
+		roundNumber -= 200 * i
 		infos, exist := roundinfos.Load(roundNumber)
 		if !exist {
 			break
