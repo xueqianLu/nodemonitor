@@ -22,12 +22,8 @@ type EthRpc struct {
 	rpcclient *rpc.Client
 }
 
-var (
-	ethRpc = &EthRpc{}
-)
-
-func init() {
-	url := "https://hpbnode.com"
+func NewRPC(url string) *EthRpc {
+	ethRpc := new(EthRpc)
 	c, err := rpc.Dial(url)
 	if err != nil {
 		beego.Error("eth rpc init failed", "dial url error", err)
@@ -35,9 +31,10 @@ func init() {
 		ethRpc.url = url
 		ethRpc.rpcclient = c
 	}
+	return ethRpc
 }
 
-func RandomByNumber(hex string) (interface{}, error) {
+func (ethRpc *EthRpc) RandomByNumber(hex string) (interface{}, error) {
 	if ethRpc.rpcclient == nil {
 		return nil, ErrNotConnect
 	}
@@ -50,7 +47,7 @@ func RandomByNumber(hex string) (interface{}, error) {
 	return raw, nil
 }
 
-func BlockByNumber(number *big.Int, tx bool) (interface{}, error) {
+func (ethRpc *EthRpc) BlockByNumber(number *big.Int, tx bool) (interface{}, error) {
 	if ethRpc.rpcclient == nil {
 		return nil, ErrNotConnect
 	}
@@ -64,7 +61,7 @@ func BlockByNumber(number *big.Int, tx bool) (interface{}, error) {
 	return raw, nil
 }
 
-func BlockNumber() (interface{}, error) {
+func (ethRpc *EthRpc) BlockNumber() (interface{}, error) {
 	if ethRpc.rpcclient == nil {
 		return nil, ErrNotConnect
 	}
@@ -78,7 +75,7 @@ func BlockNumber() (interface{}, error) {
 	return raw, nil
 }
 
-func BlockTransactionCountByNumber(number *big.Int) (interface{}, error) {
+func (ethRpc *EthRpc) BlockTransactionCountByNumber(number *big.Int) (interface{}, error) {
 	if ethRpc.rpcclient == nil {
 		return nil, ErrNotConnect
 	}
@@ -91,7 +88,7 @@ func BlockTransactionCountByNumber(number *big.Int) (interface{}, error) {
 	//beego.Info("eth_getBlockTransactionCountByNumber", "result ", string(raw))
 	return raw, nil
 }
-func TransactionByHash(hash common.Hash) (interface{}, error) {
+func (ethRpc *EthRpc) TransactionByHash(hash common.Hash) (interface{}, error) {
 	if ethRpc.rpcclient == nil {
 		return nil, ErrNotConnect
 	}
@@ -104,7 +101,7 @@ func TransactionByHash(hash common.Hash) (interface{}, error) {
 	//beego.Info("eth_getTransactionByHash", "result ", string(raw))
 	return raw, nil
 }
-func TransactionByBlockNumberAndIndex(number *big.Int, index uint) (interface{}, error) {
+func (ethRpc *EthRpc) TransactionByBlockNumberAndIndex(number *big.Int, index uint) (interface{}, error) {
 	if ethRpc.rpcclient == nil {
 		return nil, ErrNotConnect
 	}
@@ -118,7 +115,7 @@ func TransactionByBlockNumberAndIndex(number *big.Int, index uint) (interface{},
 	return raw, nil
 }
 
-func TransactionCount(addr common.Address, number *big.Int) (interface{}, error) {
+func (ethRpc *EthRpc) TransactionCount(addr common.Address, number *big.Int) (interface{}, error) {
 	if ethRpc.rpcclient == nil {
 		return nil, ErrNotConnect
 	}
@@ -132,7 +129,7 @@ func TransactionCount(addr common.Address, number *big.Int) (interface{}, error)
 	return raw, nil
 }
 
-func SendRawTransaction(data []byte) (interface{}, error) {
+func (ethRpc *EthRpc) SendRawTransaction(data []byte) (interface{}, error) {
 	if ethRpc.rpcclient == nil {
 		return nil, ErrNotConnect
 	}
@@ -146,7 +143,7 @@ func SendRawTransaction(data []byte) (interface{}, error) {
 	return raw, nil
 }
 
-func TransactionReceipt(txhash common.Hash) (interface{}, error) {
+func (ethRpc *EthRpc) TransactionReceipt(txhash common.Hash) (interface{}, error) {
 	if ethRpc.rpcclient == nil {
 		return nil, ErrNotConnect
 	}
@@ -160,7 +157,7 @@ func TransactionReceipt(txhash common.Hash) (interface{}, error) {
 	return raw, nil
 }
 
-func CallContract(msg ethereum.CallMsg, blockNumber *big.Int) (interface{}, error) {
+func (ethRpc *EthRpc) CallContract(msg ethereum.CallMsg, blockNumber *big.Int) (interface{}, error) {
 	if ethRpc.rpcclient == nil {
 		return nil, ErrNotConnect
 	}
@@ -174,7 +171,7 @@ func CallContract(msg ethereum.CallMsg, blockNumber *big.Int) (interface{}, erro
 	return raw, nil
 }
 
-func GetCode(account common.Address, blockNumber *big.Int) (interface{}, error) {
+func (ethRpc *EthRpc) GetCode(account common.Address, blockNumber *big.Int) (interface{}, error) {
 	if ethRpc.rpcclient == nil {
 		return nil, ErrNotConnect
 	}
@@ -188,7 +185,7 @@ func GetCode(account common.Address, blockNumber *big.Int) (interface{}, error) 
 	return raw, nil
 }
 
-func StorageAt(account common.Address, key common.Hash, blockNumber *big.Int) (interface{}, error) {
+func (ethRpc *EthRpc) StorageAt(account common.Address, key common.Hash, blockNumber *big.Int) (interface{}, error) {
 	if ethRpc.rpcclient == nil {
 		return nil, ErrNotConnect
 	}
@@ -202,8 +199,7 @@ func StorageAt(account common.Address, key common.Hash, blockNumber *big.Int) (i
 	return raw, nil
 }
 
-
-func NetPeers() (interface{}, error) {
+func (ethRpc *EthRpc) NetPeers() (interface{}, error) {
 	if ethRpc.rpcclient == nil {
 		return nil, ErrNotConnect
 	}
@@ -217,7 +213,7 @@ func NetPeers() (interface{}, error) {
 	return raw, nil
 }
 
-func HpbNodes() (interface{}, error) {
+func (ethRpc *EthRpc) HpbNodes() (interface{}, error) {
 	if ethRpc.rpcclient == nil {
 		return nil, ErrNotConnect
 	}
@@ -230,7 +226,7 @@ func HpbNodes() (interface{}, error) {
 	return raw, nil
 }
 
-func HpbCadNodes() (interface{}, error) {
+func (ethRpc *EthRpc) HpbCadNodes() (interface{}, error) {
 	if ethRpc.rpcclient == nil {
 		return nil, ErrNotConnect
 	}
@@ -243,7 +239,7 @@ func HpbCadNodes() (interface{}, error) {
 	return raw, nil
 }
 
-func GasPrice() (interface{}, error) {
+func (ethRpc *EthRpc) GasPrice() (interface{}, error) {
 	if ethRpc.rpcclient == nil {
 		return nil, ErrNotConnect
 	}
@@ -268,7 +264,7 @@ func toBlockNumArg(number *big.Int) string {
 	return hexutil.EncodeBig(number)
 }
 
-func EstimateGas(msg ethereum.CallMsg) (interface{}, error) {
+func (ethRpc *EthRpc) EstimateGas(msg ethereum.CallMsg) (interface{}, error) {
 	if ethRpc.rpcclient == nil {
 		return nil, ErrNotConnect
 	}
@@ -282,7 +278,21 @@ func EstimateGas(msg ethereum.CallMsg) (interface{}, error) {
 	return raw, nil
 }
 
-func GetLogs(fq ethereum.FilterQuery) (interface{}, error) {
+func (ethRpc *EthRpc) ElectedMiner(blockNumber *big.Int) (interface{}, error) {
+	if ethRpc.rpcclient == nil {
+		return nil, ErrNotConnect
+	}
+
+	var raw json.RawMessage
+	var err = ethRpc.rpcclient.Call(&raw, "prometheus_getElectedMiner", toBlockNumArg(blockNumber))
+	if err != nil {
+		return nil, err
+	}
+	beego.Info("prometheus_getElectedMiner", "result ", string(raw))
+	return raw, nil
+}
+
+func (ethRpc *EthRpc) GetLogs(fq ethereum.FilterQuery) (interface{}, error) {
 	if ethRpc.rpcclient == nil {
 		return nil, ErrNotConnect
 	}

@@ -10,7 +10,8 @@ import (
 
 var (
 	nodestype = sync.Map{}
-	ntmux = sync.RWMutex{}
+	ntmux     = sync.RWMutex{}
+	etrpc     = new(ethrpc.EthRpc)
 )
 
 type RequestHPNodesInfo struct {
@@ -19,15 +20,18 @@ type RequestHPNodesInfo struct {
 
 type RequestCadNodesInfo struct {
 	Coinbase []string `json:"cadaddresses"`
-	Number int64 	`json:"number"`
+	Number   int64    `json:"number"`
 }
 
+func init() {
+	etrpc = ethrpc.NewRPC("https://hpbnode.com")
+}
 
 func getHpNodes() {
 	var hpinfo = []string{}
 	var cadinfo = RequestCadNodesInfo{}
 	{
-		hpnodes, err := ethrpc.HpbNodes()
+		hpnodes, err := etrpc.HpbNodes()
 		if err != nil {
 			logs.Error("got hpbnodes from rpc failed", "err", err)
 			return
@@ -44,7 +48,7 @@ func getHpNodes() {
 		}
 	}
 	{
-		hpnodes, err := ethrpc.HpbCadNodes()
+		hpnodes, err := etrpc.HpbCadNodes()
 		if err != nil {
 			logs.Error("got HpbCadNodes from rpc failed", "err", err)
 			return

@@ -1,6 +1,7 @@
 package async
 
 import (
+	"github.com/ethereum/go-ethereum/common"
 	"sort"
 	"strings"
 	"time"
@@ -10,6 +11,7 @@ func init() {
 	go syncNodeInfo()
 	go syncPeerInfo()
 	go syncConsensusNode()
+	go syncMinerInfo()
 }
 
 func syncNodeInfo() {
@@ -158,5 +160,33 @@ func GetAllNodeStatus(filter map[string]string) interface{} {
 	result.Infos = res
 
 	return result
+}
 
+type NodeInfo struct {
+	Address   common.Address `json:"nodeaddress"`
+	Name      string         `json:"nodename"`
+	LoseBlock int            `json:"loseblock"`
+}
+type RoundInfo []NodeInfo
+
+func (p RoundInfo) Len() int { return len(p) }
+func (p RoundInfo) Less(i, j int) bool {
+	return p[i].LoseBlock > p[j].LoseBlock
+}
+func (p RoundInfo) Swap(i, j int) { p[i], p[j] = p[j], p[i] }
+
+func syncMinerInfo() {
+	getMinerInfo()
+	timer := time.NewTicker(time.Minute * 5)
+	defer timer.Stop()
+	for {
+		select {
+		case <-timer.C:
+			go getMinerInfo()
+		}
+	}
+}
+
+func GetBlockLoseInfo(number int64, round int) RoundsInfos {
+	return getRoundInfo(number, int64(round))
 }

@@ -11,6 +11,7 @@ func init() {
 			//用户信息
 			beego.NSRouter("/nodeinfo", &controllers.Controller{}, "*:NodeInfo"),
 			beego.NSRouter("/hpnodeinfo", &controllers.Controller{}, "get:HpNodeInfo"),
+			beego.NSRouter("/loseinfo", &controllers.Controller{}, "get:BlockLoseInfo"),
 		),
 	)
 	beego.AddNamespace(ns)
